@@ -32,11 +32,11 @@
 # - The guard considers the same custom location AND the same SPC, regardless of creator.
 # - Resource Graph's existing helper follows skip tokens; complete discovery is baseline behavior.
 #
-# These files are a specification-only prototype in azure-iot-cli-extension.
+# Implementation is an isolated prototype extension under prototypes/secretsync.
 # The commands are owned by azure-iot-ops-cli-extension; no registration transfer is authorized.
-# Before implementation, agree the destination and an exact first-party coverage inventory:
-# command/argument wiring, handlers, validators, providers, and changed shared first-party logic.
-# Generated SDKs and tests are not production coverage targets. The inventory is not yet accepted.
+# Human-approved coverage scope is every Python file beneath prototypes/secretsync/src,
+# including command/argument wiring, handlers, REST adapters, and developer/live runners.
+# Existing azext_iot code and tests are not part of this prototype's production coverage scope.
 #
 # All scenarios and all Examples rows require offline execution, including @e2e.
 # safety_proposals.feature retains the provenance of the six reviewed additions beyond code.

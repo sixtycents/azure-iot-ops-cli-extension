@@ -188,12 +188,11 @@ Feature: Set Key Vault mappings on a named SecretSync
   @scenario-SS-066
   Scenario: Do not treat a forbidden SecretSync lookup as a create opportunity
     Given Key Vault secret "kv-pass" exists
-    And the SPC update succeeds
     And reading SecretSync "creds" is forbidden
     When I set mapping "kv-pass=password" on SecretSync "creds"
     Then the command exits unsuccessfully with the lookup error
-    And no SecretSync create or update is attempted
-    And no rollback of the completed SPC update is claimed
+    And no SPC or SecretSync write is attempted
+    And the existing configuration remains unchanged
 
   @scenario-SS-067
   Scenario: Surface failure after an SPC update without claiming atomicity

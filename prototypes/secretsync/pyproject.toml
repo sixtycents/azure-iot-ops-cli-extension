@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iot-secretsync-prototype"
+version = "0.1.0"
+description = "Isolated, specification-first Azure IoT Operations SecretSync prototype."
+requires-python = ">=3.10"
+dependencies = [
+    "azure-cli-core>=2.70,<3",
+    "requests>=2.32,<3",
+    "PyYAML>=6,<7",
+]
+
+[project.optional-dependencies]
+test = [
+    "azure-cli>=2.70,<3",
+    "pytest>=8.1,<9",
+    "pytest-bdd>=8,<9",
+    "gherkin-official>=29,<30",
+    "pytest-cov>=5,<8",
+    "pytest-socket>=0.7,<1",
+    "responses>=0.22,<1",
+    "build>=1,<2",
+    "flake8>=7,<8",
+    "azure-iot-ops @ https://azcliprod.blob.core.windows.net/cli-extensions/azure_iot_ops-2.11.2-py3-none-any.whl#sha256=03311dc668661c73390101f7220d8554c255d733cc971c3902bb2dc3d20f8bf6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+azext_secretsync_prototype = ["azext_metadata.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "secretsync: accepted SecretSync specification",
+    "e2e: additional live environment qualification",
+]
+filterwarnings = ["error::pytest.PytestUnknownMarkWarning"]
