@@ -20,7 +20,7 @@ FEATURES = REPOSITORY / "features" / "secretsync"
 def new_run(output: Path) -> Path:
     output = output.resolve()
     # Refuse source trees and their ancestors: output must never contain a source directory.
-    for protected in (PROTOTYPE / "src", PROTOTYPE / "tests", FEATURES, REPOSITORY / "azext_iot"):
+    for protected in (PROTOTYPE / "src", PROTOTYPE / "tests", FEATURES, REPOSITORY / "azext_edge"):
         if output == protected or output in protected.parents or protected in output.parents:
             raise ValueError("Output overlaps a protected source directory")
     output.mkdir(parents=True, exist_ok=True)

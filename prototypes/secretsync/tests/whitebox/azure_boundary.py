@@ -142,7 +142,8 @@ class AzureBoundary:
         if lower == "/providers/microsoft.resourcegraph/resources":
             query = body["query"]
             if "microsoft.keyvault/vaults" in query:
-                data = [{"vaultUri": self.vault_uri, "subscriptionId": self.vault_subscription}] if self.vaults_visible else []
+                data = ([{"vaultUri": self.vault_uri, "subscriptionId": self.vault_subscription}]
+                        if self.vaults_visible else [])
             else:
                 match = re.search(r"extendedLocation.name =~ '([^']+)'", query)
                 assert match, f"Discovery must scope a custom location: {query}"

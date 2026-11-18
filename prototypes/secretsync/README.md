@@ -1,6 +1,7 @@
 # Specification-first SecretSync prototype
 
-This is a **separate, experimental Azure CLI extension**, not a change to `azure-iot`.
+This is a **separate, experimental Azure CLI extension**, not a change to the production
+`azure-iot-ops` extension.
 It implements `enable`, `disable`, `list`, `secret set`, `secret list`, and `secret remove`
 under `az iot ops secretsync`. Do not install it alongside `azure-iot-ops` in the same
 extension directory: both own those command names.
@@ -53,7 +54,7 @@ not merely carry the right tag.
 That includes registration, handlers, service behavior, real REST adapters and both
 runners. A new production file in that tree is automatically required, even if never
 imported. Each file must have zero missing executable lines and no excluded lines;
-a rounded total of `100%` is insufficient. Existing `azext_iot`, generated dependencies
+a rounded total of `100%` is insufficient. Existing `azext_edge`, generated dependencies
 and test code are outside this agreed scope. Coverage is not branch coverage and is
 not proof that live Azure behavior is correct.
 

@@ -119,7 +119,8 @@ def mapped_objects(world):
     assert objects(world.azure.spc_resource)[0]["objectName"] == "kv-pass"
 
 
-@g(r'(?:run-owned )?Key Vault secrets? "(?P<source>[^"]+)" (?:already )?exists?(?: and all required services are now available)?')
+@g(r'(?:run-owned )?Key Vault secrets? "(?P<source>[^"]+)" '
+   r'(?:already )?exists?(?: and all required services are now available)?')
 @g(r'a run-owned Key Vault secret "(?P<source>[^"]+)" already exists')
 def source_exists(world, source):
     world.azure.secrets.setdefault(source, {"value": "unit-" + source + "-bytes", "tags": {}})
@@ -619,7 +620,8 @@ def reference_pages(world):
 
 @g(r'an additional consumer appears only on a later page')
 def later_consumer(world):
-    assert list(world.azure.resources).index(rid("Microsoft.SecretSyncController/secretSyncs", "experience").lower()) > 0
+    assert list(world.azure.resources).index(
+        rid("Microsoft.SecretSyncController/secretSyncs", "experience").lower()) > 0
 
 
 @g(r'source "kv-pass" is mapped in SecretSync "creds"')
@@ -783,8 +785,8 @@ def success(world):
 def failure(world, diagnostic=None):
     assert world.rc not in (0, None)
     assert "unexpected error" not in world.messages and "Traceback" not in world.messages
-    assert re.search(r"ERROR|failed|not found|Invalid|Enable|Missing|mismatch|Duplicate|unrecognized|required", world.messages,
-                     re.IGNORECASE)
+    assert re.search(r"ERROR|failed|not found|Invalid|Enable|Missing|mismatch|Duplicate|unrecognized|required",
+                     world.messages, re.IGNORECASE)
     if diagnostic is None:
         return
     expected = {
@@ -896,7 +898,8 @@ def no_mapping_result(world):
     assert world.result is None
 
 
-@t(r'the diagnostic identifies (?:the invalid "--secret-map" and the required source=target format|invalid SPC objects)')
+@t(r'the diagnostic identifies '
+   r'(?:the invalid "--secret-map" and the required source=target format|invalid SPC objects)')
 def invalid_diagnostic(world):
     assert "Invalid" in world.messages
     assert ("--secret-map" in world.messages and "<akv-name>=<target-key>" in world.messages
@@ -1088,7 +1091,8 @@ def reference_removed(world):
    r'no SecretSync deletion is attempted after SPC deletions have started)')
 def deletion_order(world):
     calls = world.azure.selected_calls("DELETE")
-    first_spc = next((i for i, c in enumerate(calls) if "/azureKeyVaultSecretProviderClasses/" in c["path"]), len(calls))
+    first_spc = next(
+        (i for i, c in enumerate(calls) if "/azureKeyVaultSecretProviderClasses/" in c["path"]), len(calls))
     assert not any("/secretSyncs/" in c["path"] for c in calls[first_spc:])
 
 
@@ -1251,12 +1255,14 @@ def sync_properties(world):
     assert world.result["extendedLocation"] == world.azure.spc_resource["extendedLocation"]
 
 
-@t(r'within the reconciliation timeout Kubernetes secret "(?P<name>[^"]+)" contains the Key Vault bytes under "(?P<key>[^"]+)"')
+@t(r'within the reconciliation timeout Kubernetes secret "(?P<name>[^"]+)" '
+   r'contains the Key Vault bytes under "(?P<key>[^"]+)"')
 def reconciled_probe(world, name, key):
     assert world.azure.kubernetes[name][key] == world.azure.secrets["probe"]["value"].encode()
 
 
-@t(r'within the reconciliation timeout Kubernetes secret "creds" contains the source bytes under "username" and "password"')
+@t(r'within the reconciliation timeout Kubernetes secret "creds" '
+   r'contains the source bytes under "username" and "password"')
 def reconciled_multiple(world):
     assert world.azure.kubernetes["creds"] == {
         "username": world.azure.secrets["kv-user"]["value"].encode(),
@@ -1314,7 +1320,8 @@ def preserve_spc(world):
 
 @t(r'that mapping appears exactly once')
 def one_pair(world):
-    assert world.result["properties"]["objectSecretMapping"].count({"sourcePath": "kv-pass", "targetKey": "password"}) == 1
+    assert world.result["properties"]["objectSecretMapping"].count(
+        {"sourcePath": "kv-pass", "targetKey": "password"}) == 1
 
 
 @t(r'"kv-pass" appears exactly once in the SPC objects')
@@ -1333,7 +1340,8 @@ def preserve_object_settings(world):
 @t(r'the result contains both mappings without collapsing them by sourcePath')
 def multikey_result(world):
     value = world.result["properties"]["objectSecretMapping"] if isinstance(world.result, dict) else world.result
-    assert value == [{"sourcePath": "kv-cert", "targetKey": "certificate"}, {"sourcePath": "kv-cert", "targetKey": "cert-copy"}]
+    assert value == [
+        {"sourcePath": "kv-cert", "targetKey": "certificate"}, {"sourcePath": "kv-cert", "targetKey": "cert-copy"}]
 
 
 @t(r'the SPC still contains only one object entry for "kv-cert"')
@@ -1502,7 +1510,8 @@ def no_objects_property(world):
     assert "objects" not in world.azure.spc_resource["properties"]
 
 
-@t(r'within the reconciliation timeout the SecretSync custom resource and its controller-owned Kubernetes secret are absent')
+@t(r'within the reconciliation timeout the SecretSync custom resource '
+   r'and its controller-owned Kubernetes secret are absent')
 def kubernetes_deleted(world):
     sync_deleted(world)
     assert "creds" not in world.azure.kubernetes
@@ -1584,7 +1593,8 @@ def removal_no_vault(world):
 
 @t(r'cleanup targets only SPC "spc-a"')
 def target_spc(world):
-    assert all("/spc-a" in c["path"] for c in world.azure.selected_calls(contains="/azureKeyVaultSecretProviderClasses/"))
+    assert all("/spc-a" in c["path"]
+               for c in world.azure.selected_calls(contains="/azureKeyVaultSecretProviderClasses/"))
 
 
 @t(r'it does not require or modify the instance default SPC association')

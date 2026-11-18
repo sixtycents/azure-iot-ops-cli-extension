@@ -33,10 +33,10 @@
 # - Resource Graph's existing helper follows skip tokens; complete discovery is baseline behavior.
 #
 # Implementation is an isolated prototype extension under prototypes/secretsync.
-# The commands are owned by azure-iot-ops-cli-extension; no registration transfer is authorized.
+# Production commands remain in azext_edge; the prototype registers only in an isolated extension directory.
 # Human-approved coverage scope is every Python file beneath prototypes/secretsync/src,
 # including command/argument wiring, handlers, REST adapters, and developer/live runners.
-# Existing azext_iot code and tests are not part of this prototype's production coverage scope.
+# Existing azext_edge code and tests are not part of this prototype's production coverage scope.
 #
 # All scenarios and all Examples rows require offline execution, including @e2e.
 # safety_proposals.feature retains the provenance of the six reviewed additions beyond code.

@@ -45,6 +45,12 @@ def test_output_cannot_overwrite_source(suffix):
         runner.new_run(runner.PROTOTYPE / suffix)
 
 
+@pytest.mark.parametrize("suffix", ["", "tests", "edge"])
+def test_output_cannot_overwrite_native_extension(suffix):
+    with pytest.raises(ValueError, match="protected"):
+        runner.new_run(runner.REPOSITORY / "azext_edge" / suffix)
+
+
 def test_subprocess_uses_interpreter_no_shell_and_plugins(tmp_path, monkeypatch):
     calls = []
 

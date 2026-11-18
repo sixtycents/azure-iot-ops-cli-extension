@@ -70,8 +70,8 @@ class LiveWorld:
         require(not self.resources(), "The dedicated instance must start with no associated sync resources.")
         require(not self.instance["properties"].get("defaultSecretProviderClassRef"),
                 "The dedicated instance must start without a default SPC reference.")
-        self.initial_roles = self.collection(p["vault_resource_id"] + "/providers/Microsoft.Authorization/roleAssignments",
-                                             "2022-04-01")
+        self.initial_roles = self.collection(
+            p["vault_resource_id"] + "/providers/Microsoft.Authorization/roleAssignments", "2022-04-01")
         self.initial_federation = self.collection(p["identity_resource_id"] + "/federatedIdentityCredentials",
                                                   "2023-01-31")
 
@@ -95,7 +95,8 @@ class LiveWorld:
             require(bool(paths) and all(Path(p).resolve() == expected.resolve() for p in paths),
                     "The invoked command did not load the installed candidate implementation.")
         if completed.returncode:
-            raise LiveError(f"{label}: exited with code {completed.returncode}; inspect the target environment.") from None
+            raise LiveError(
+                f"{label}: exited with code {completed.returncode}; inspect the target environment.") from None
         if not json_output:
             return completed.stdout
         try:
@@ -149,7 +150,8 @@ class LiveWorld:
             "| where extendedLocation.name =~ '" + self.location_id.replace("'", "''") + "'")
 
     def kubectl(self, args):
-        return self.execute(["--context", self.profile["cluster_name"], "--namespace", self.profile["namespace"], *args],
+        return self.execute(["--context", self.profile["cluster_name"],
+                             "--namespace", self.profile["namespace"], *args],
                             "Kubernetes request", executable=["kubectl"])
 
     def wait(self, check, message):
@@ -205,7 +207,8 @@ class LiveWorld:
                     props = value["properties"]
                     owned = (props.get("principalId") == self.identity["properties"]["principalId"]
                              if "/roleAssignments/" in value["id"]
-                             else props.get("subject") == f"system:serviceaccount:{self.profile['namespace']}:aio-ssc-sa")
+                             else props.get("subject")
+                             == f"system:serviceaccount:{self.profile['namespace']}:aio-ssc-sa")
                     require(owned, "An unexpected access resource appeared; cleanup ownership is uncertain.")
                     self.access_created.append((value["id"], version))
 
@@ -265,6 +268,21 @@ class LiveWorld:
         resources = [self.spc_body(), self.sync_body()]
         return hashlib.sha256(json.dumps(resources, sort_keys=True).encode()).hexdigest()
 
+    def _cleanup_sync_resources(self, errors):
+        try:
+            base = self.instance_id.split("/providers/")[0]
+            existing = {r["id"].lower() for kind in (SYNC, SPC)
+                        for r in self.collection(base + "/providers/" + kind, VERSION)}
+            for kind in (SYNC, SPC):
+                for resource in reversed(self.created):
+                    if f"/providers/{kind}/" in resource and resource.lower() in existing:
+                        try:
+                            self.rest("DELETE", resource)
+                        except LiveError:
+                            errors.append("An owned sync resource could not be deleted.")
+        except LiveError:
+            errors.append("Could not inventory owned sync resources for cleanup.")
+
     def cleanup(self):
         errors = []
         if hasattr(self, "access_attempts"):
@@ -284,19 +302,7 @@ class LiveWorld:
                 errors.append("Unexpected default reference; not modified.")
         except LiveError:
             errors.append("Could not verify or clear the owned default reference.")
-        try:
-            base = self.instance_id.split("/providers/")[0]
-            existing = {r["id"].lower() for kind in (SYNC, SPC)
-                        for r in self.collection(base + "/providers/" + kind, VERSION)}
-            for kind in (SYNC, SPC):
-                for resource in reversed(self.created):
-                    if f"/providers/{kind}/" in resource and resource.lower() in existing:
-                        try:
-                            self.rest("DELETE", resource)
-                        except LiveError:
-                            errors.append("An owned sync resource could not be deleted.")
-        except LiveError:
-            errors.append("Could not inventory owned sync resources for cleanup.")
+        self._cleanup_sync_resources(errors)
         for logical in self.values:
             try:
                 self.az(["keyvault", "secret", "delete", "--vault-name", self.vault_name, "--name", self.name(logical)],

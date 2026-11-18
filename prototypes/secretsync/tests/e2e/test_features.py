@@ -134,7 +134,8 @@ def experience_consumer(live):
     body = {"location": live.spc["location"], "extendedLocation": live.spc["extendedLocation"],
             "tags": {OWNER_TAG: live.prefix},
             "properties": {"secretProviderClassName": live.name("spc-a"), "kubernetesSecretType": "Opaque",
-                           "serviceAccountName": "aio-ssc-sa", "objectSecretMapping": mapping(live, [("kv-pass", "custom-key")])}}
+                           "serviceAccountName": "aio-ssc-sa",
+                           "objectSecretMapping": mapping(live, [("kv-pass", "custom-key")])}}
     live.rest("PUT", live.track(SYNC, "experience"), body)
     live.other_before = live.sync_body("experience")
     live.wait(lambda: any(r["id"].lower() == live.other_before["id"].lower() for r in live.resources()),
@@ -168,7 +169,8 @@ def disable_setup(live):
     live.rest("PUT", live.track(SPC, "additional"), body)
     body = {"location": live.spc["location"], "extendedLocation": live.spc["extendedLocation"],
             "properties": {"secretProviderClassName": live.name("additional"), "kubernetesSecretType": "Opaque",
-                           "serviceAccountName": "aio-ssc-sa", "objectSecretMapping": mapping(live, [("kv-pass", "password")])}}
+                           "serviceAccountName": "aio-ssc-sa",
+                           "objectSecretMapping": mapping(live, [("kv-pass", "password")])}}
     live.rest("PUT", live.track(SYNC, "experience"), body)
     live.owned_ids = list(live.created)
 
@@ -273,14 +275,16 @@ def default_reference(live):
             == live.spc["id"].lower(), "Instance default SPC reference differs.")
 
 
-@t(r'within the reconciliation timeout Kubernetes secret "(?P<name>[^"]+)" contains the Key Vault bytes under "(?P<key>[^"]+)"')
+@t(r'within the reconciliation timeout Kubernetes secret "(?P<name>[^"]+)" '
+   r'contains the Key Vault bytes under "(?P<key>[^"]+)"')
 def probe(live, name, key):
     live.expect_data(name, {key: "probe"})
 
 
 @t(r'(?:the secret bytes are not included in command output or test diagnostics|'
    r'command output contains mappings but not secret values|'
-   r'output contains configuration and secret references but not Key Vault secret values|no secret values appear in output)')
+   r'output contains configuration and secret references but not Key Vault secret values|'
+   r'no secret values appear in output)')
 def values_redacted(live):
     live.assert_no_values()
 
@@ -316,7 +320,8 @@ def sync_fields(live):
             and live.result["extendedLocation"] == live.spc["extendedLocation"], "SecretSync fields differ.")
 
 
-@t(r'within the reconciliation timeout Kubernetes secret "creds" contains the source bytes under "username" and "password"')
+@t(r'within the reconciliation timeout Kubernetes secret "creds" '
+   r'contains the source bytes under "username" and "password"')
 def userpass(live):
     live.expect_data("creds", {"username": "kv-user", "password": "kv-pass"})
 
@@ -329,8 +334,8 @@ def additive(live):
 
 @t(r'existing SecretSync properties unrelated to mappings are preserved')
 def other_properties(live):
-    require({k: v for k, v in live.result["properties"].items() if k != "objectSecretMapping"} ==
-            {k: v for k, v in live.old_sync["properties"].items() if k != "objectSecretMapping"},
+    require({k: v for k, v in live.result["properties"].items() if k != "objectSecretMapping"}
+            == {k: v for k, v in live.old_sync["properties"].items() if k != "objectSecretMapping"},
             "Unrelated SecretSync properties changed.")
 
 
@@ -338,8 +343,8 @@ def other_properties(live):
 def other_objects(live):
     actual = live.spc_body()
     require(all(e in entries(actual) for e in entries(live.old_spc)), "Existing SPC objects changed.")
-    require({k: v for k, v in actual["properties"].items() if k not in ("objects", "provisioningState")} ==
-            {k: v for k, v in live.old_spc["properties"].items() if k not in ("objects", "provisioningState")},
+    require({k: v for k, v in actual["properties"].items() if k not in ("objects", "provisioningState")}
+            == {k: v for k, v in live.old_spc["properties"].items() if k not in ("objects", "provisioningState")},
             "Existing SPC connection properties changed.")
 
 
@@ -356,7 +361,8 @@ def multikey(live):
 
 @t(r'the SPC still contains only one object entry for "kv-cert"')
 def one_object(live):
-    require(sum(e["objectName"] == live.name("kv-cert") for e in entries(live.spc_body())) == 1, "Duplicate SPC source.")
+    require(sum(e["objectName"] == live.name("kv-cert") for e in entries(live.spc_body())) == 1,
+            "Duplicate SPC source.")
 
 
 @t(r'within the reconciliation timeout both Kubernetes keys contain the same expected source bytes')
@@ -367,7 +373,8 @@ def multikey_bytes(live):
 @t(r'the output contains the associated SPC and SecretSync ARM resources with their properties')
 @t(r'each resource identifies custom location "cl-a"')
 def resource_list(live):
-    require({r["id"].lower() for r in live.result} == {live.track(SPC, "spc-a").lower(), live.track(SYNC, "creds").lower()}
+    require({r["id"].lower() for r in live.result}
+            == {live.track(SPC, "spc-a").lower(), live.track(SYNC, "creds").lower()}
             and all(r["extendedLocation"]["name"].lower() == live.location_id.lower() and r["properties"]
                     for r in live.result), "Associated configuration output differs.")
 
@@ -436,7 +443,8 @@ def empty_objects(live):
     require("objects" not in live.spc_body()["properties"], "Empty SPC retained an objects property.")
 
 
-@t(r'within the reconciliation timeout the SecretSync custom resource and its controller-owned Kubernetes secret are absent')
+@t(r'within the reconciliation timeout the SecretSync custom resource '
+   r'and its controller-owned Kubernetes secret are absent')
 def runtime_absent(live):
     def absent():
         sync = live.kubectl(["get", "secretsync", live.name("creds"), "--ignore-not-found", "-o", "json"])
@@ -470,7 +478,8 @@ def real_resource(live):
 
 @t(r'the instance no longer has a defaultSecretProviderClassRef')
 def disabled_reference(live):
-    require(not live.rest("GET", live.instance_id, version="2026-10-01")["properties"].get("defaultSecretProviderClassRef"),
+    instance = live.rest("GET", live.instance_id, version="2026-10-01")
+    require(not instance["properties"].get("defaultSecretProviderClassRef"),
             "Disable left the instance default SPC reference.")
 
 
@@ -480,7 +489,8 @@ def disabled_resources(live):
     if not hasattr(live, "disable_events"):
         live.disable_events = list(live.command_events)
     deletes = [path for method, path in live.disable_events if method == "DELETE"]
-    first_spc = next((i for i, path in enumerate(deletes) if "/azureKeyVaultSecretProviderClasses/" in path), len(deletes))
+    first_spc = next(
+        (i for i, path in enumerate(deletes) if "/azureKeyVaultSecretProviderClasses/" in path), len(deletes))
     require(bool(deletes) and not any("/secretSyncs/" in path for path in deletes[first_spc:]),
             "SecretSync deletions did not precede SPC deletions.")
     live.wait(lambda: not live.resources(), "Disable left associated sync resources.")

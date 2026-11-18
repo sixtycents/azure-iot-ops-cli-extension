@@ -1,4 +1,4 @@
-"""Isolated prototype extension; it is never registered by azure-iot."""
+"""Isolated prototype extension; it is never registered by azure-iot-ops."""
 
 from azure.cli.core import AzCommandsLoader
 from azure.cli.core.commands import CliCommandType
@@ -38,26 +38,32 @@ class PrototypeCommandsLoader(AzCommandsLoader):
 
     def load_arguments(self, command):
         with self.argument_context("iot ops secretsync") as context:
-            context.argument("instance_name", options_list=["--instance", "-i", "-n"], help="IoT Operations instance name.")
+            context.argument("instance_name", options_list=["--instance", "-i", "-n"],
+                             help="IoT Operations instance name.")
             context.argument("resource_group_name", arg_type=resource_group_name_type)
-            context.argument("confirm_yes", options_list=["--yes", "-y"], arg_type=get_three_state_flag(),
+            context.argument("confirm_yes", options_list=["--yes", "-y"],
+                             arg_type=get_three_state_flag(),
                              help="Confirm destructive configuration removal without a prompt.")
             context.argument("secret_sync_name", options_list=["--secret-sync-name"], help="SecretSync resource name.")
         with self.argument_context("iot ops secretsync enable") as context:
-            context.argument("mi_user_assigned", options_list=["--mi-user-assigned"], help="Managed identity resource ID.")
+            context.argument("mi_user_assigned", options_list=["--mi-user-assigned"],
+                             help="Managed identity resource ID.")
             context.argument("keyvault_resource_id", options_list=["--kv-resource-id"], help="Key Vault resource ID.")
             context.argument("spc_name", options_list=["--spc"], help="Default SPC name; default spc-ops-{hash}.")
             context.argument("skip_role_assignments", options_list=["--skip-ra"], arg_type=get_three_state_flag(),
                              help="Skip vault role assignment reads and writes.")
-            context.argument("use_self_hosted_issuer", options_list=["--self-hosted-issuer"], arg_type=get_three_state_flag(),
+            context.argument("use_self_hosted_issuer", options_list=["--self-hosted-issuer"],
+                             arg_type=get_three_state_flag(),
                              help="Select the cluster self-hosted issuer.")
-            context.argument("custom_role_id", options_list=["--custom-role-id"], help="Custom role definition resource ID.")
+            context.argument("custom_role_id", options_list=["--custom-role-id"],
+                             help="Custom role definition resource ID.")
             context.argument("tags", arg_type=tags_type)
         with self.argument_context("iot ops secretsync secret set") as context:
             context.argument("secret_map", options_list=["--secret-map"], action="append",
                              help="Repeatable <akv-secret-name>=<target-key> mapping.")
         with self.argument_context("iot ops secretsync secret remove") as context:
-            context.argument("secret_name", options_list=["--secret-name"], help="Source Key Vault secret name to remove.")
+            context.argument("secret_name", options_list=["--secret-name"],
+                             help="Source Key Vault secret name to remove.")
 
 
 COMMAND_LOADER_CLS = PrototypeCommandsLoader

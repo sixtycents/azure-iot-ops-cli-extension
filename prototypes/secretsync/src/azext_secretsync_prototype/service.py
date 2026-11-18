@@ -228,7 +228,8 @@ class SecretSyncService:
                     self.api.delete(target["id"])
 
     def enable(self, instance_name, resource_group_name, mi_user_assigned, keyvault_resource_id,
-               spc_name=None, skip_role_assignments=False, use_self_hosted_issuer=False, custom_role_id=None, tags=None):
+               spc_name=None, skip_role_assignments=False, use_self_hosted_issuer=False,
+               custom_role_id=None, tags=None):
         instance = self.instance(instance_name, resource_group_name)
         self.api.get(keyvault_resource_id)
         identity = self.api.get(mi_user_assigned)
@@ -293,7 +294,8 @@ class SecretSyncService:
             assignment = str(uuid5(NAMESPACE_URL, f"{vault_id.lower()}:{principal}:{role_id.lower()}"))
             self.api.write(
                 collection + "/" + assignment,
-                {"properties": {"principalId": principal, "principalType": "ServicePrincipal", "roleDefinitionId": role_id}},
+                {"properties": {"principalId": principal, "principalType": "ServicePrincipal",
+                                "roleDefinitionId": role_id}},
             )
 
     def _federate(self, identity_id, issuer, subject, repair_only=False):
